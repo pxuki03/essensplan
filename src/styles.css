@@ -1,0 +1,64 @@
+:root {
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color: #1e2320;
+  background: #f7f4ef;
+  --surface: #fffdfa;
+  --line: #ded7cc;
+  --muted: #69706a;
+  --green: #50735d;
+  --tomato: #c8553d;
+}
+
+* { box-sizing: border-box; }
+body { margin: 0; min-width: 320px; min-height: 100vh; background: #f7f4ef; }
+button, input { font: inherit; }
+button { cursor: pointer; }
+button:focus-visible, input:focus-visible { outline: 3px solid rgba(80, 115, 93, 0.45); outline-offset: 2px; }
+
+.app-shell { display: grid; grid-template-columns: 260px 1fr; min-height: 100vh; }
+.sidebar { border-right: 1px solid var(--line); background: #fffaf2; padding: 24px 16px; position: sticky; top: 0; height: 100vh; }
+.brand { display: flex; gap: 12px; align-items: center; margin-bottom: 28px; }
+.brand > span { width: 42px; height: 42px; display: grid; place-items: center; border-radius: 8px; background: var(--green); color: white; font-weight: 800; }
+.brand strong, .brand small { display: block; }
+.brand small { color: var(--muted); }
+nav { display: grid; gap: 6px; }
+nav button { border: 0; background: transparent; display: flex; gap: 10px; align-items: center; width: 100%; padding: 11px 12px; border-radius: 8px; text-align: left; color: #1e2320; }
+nav button.active, nav button:hover { background: #e9efe8; color: #244832; }
+main { padding: 32px; max-width: 1280px; width: 100%; margin: 0 auto; }
+section { display: grid; gap: 20px; }
+.eyebrow { color: var(--tomato); font-weight: 800; margin: 0; text-transform: uppercase; font-size: 0.78rem; letter-spacing: 0.06em; }
+h1, h2 { margin: 0; letter-spacing: 0; }
+h1 { font-size: clamp(2rem, 3vw, 3rem); }
+h2 { font-size: 1.1rem; }
+.metrics { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+.metrics article, .panel { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; box-shadow: 0 8px 24px rgba(30, 35, 32, 0.05); }
+.metrics article { padding: 16px; display: grid; gap: 8px; }
+.metrics strong { font-size: 1.6rem; }
+.metrics span, small, .panel p { color: var(--muted); }
+.grid { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(280px, 0.8fr); gap: 16px; }
+.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
+.panel { padding: 18px; display: grid; gap: 14px; }
+.progress { display: grid; grid-template-columns: 110px 1fr 110px; gap: 12px; align-items: center; }
+progress { width: 100%; accent-color: var(--green); }
+.row { display: flex; justify-content: space-between; gap: 12px; border-top: 1px solid var(--line); padding-top: 10px; margin: 0; }
+.row small { display: block; margin-top: 2px; }
+.planner { display: grid; grid-template-columns: 112px repeat(7, minmax(120px, 1fr)); overflow-x: auto; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); }
+.planner b { padding: 12px; background: #f2eee6; border-bottom: 1px solid var(--line); }
+.planner button { min-height: 88px; border: 0; border-left: 1px solid var(--line); border-bottom: 1px solid var(--line); background: white; padding: 10px; text-align: left; }
+.planner button:hover { background: #fbf6ed; }
+table { width: 100%; border-collapse: collapse; }
+th, td { padding: 14px; border-bottom: 1px solid var(--line); text-align: left; }
+.check { display: flex; gap: 12px; align-items: flex-start; border-top: 1px solid var(--line); padding-top: 10px; }
+.check input { margin-top: 4px; width: 18px; height: 18px; accent-color: var(--green); }
+.check span, .check small { display: block; }
+
+@media (max-width: 860px) {
+  .app-shell { grid-template-columns: 1fr; }
+  .sidebar { position: static; height: auto; border-right: 0; border-bottom: 1px solid var(--line); padding: 14px; }
+  .brand { margin-bottom: 12px; }
+  nav { display: flex; overflow-x: auto; }
+  nav button { white-space: nowrap; }
+  main { padding: 20px 14px; }
+  .metrics, .grid { grid-template-columns: 1fr; }
+  .planner { grid-template-columns: 96px repeat(7, 132px); }
+}
