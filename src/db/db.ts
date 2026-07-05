@@ -27,6 +27,18 @@ export class EssensplanDatabase extends Dexie {
       priceObservations: '++id, itemName, storeId, observedAt',
       userSettings: 'id'
     });
+    this.version(2).stores({
+      recipes: '++id, title, updatedAt',
+      recipeIngredients: '++id, recipeId, name, category, foodProductId',
+      foodProducts: '++id, name, barcode, sourceId, source',
+      mealPlanEntries: '++id, date, slot, recipeId',
+      pantryItems: '++id, name, category, expiresAt, foodProductId',
+      shoppingLists: '++id, status, fromDate, toDate, createdAt',
+      shoppingListItems: '++id, shoppingListId, name, category, storeId, checked',
+      stores: '++id, name',
+      priceObservations: '++id, itemName, storeId, observedAt',
+      userSettings: 'id'
+    });
   }
 }
 
