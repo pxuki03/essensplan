@@ -41,14 +41,5 @@ export default function App() {
     );
   }
 
-  return (
-    <AppShell activeView={activeView} onViewChange={setActiveView}>
-      {activeView === 'dashboard' && <Dashboard recipes={recipes} ingredients={ingredients} meals={meals} pantry={pantry} listItems={listItems} settings={data.settings} />}
-      {activeView === 'recipes' && <Recipes recipes={recipes} ingredients={ingredients} />}
-      {activeView === 'planner' && <Planner meals={meals} recipes={recipes} />}
-      {activeView === 'nutrition' && <NutritionView meals={meals} recipes={recipes} ingredients={ingredients} settings={data.settings} />}
-      {activeView === 'shopping' && <Groceries meals={meals} ingredients={ingredients} pantry={pantry} lists={lists} listItems={listItems} stores={stores} prices={prices} />}
-      {activeView === 'pantry' && <Pantry pantry={pantry} />}
-    </AppShell>
-  );
+  return <AppShell activeView={activeView} onViewChange={setActiveView}>{activeView === 'dashboard' && <Dashboard recipes={recipes} ingredients={ingredients} meals={meals} pantry={pantry} listItems={listItems} settings={data.settings} />}{activeView === 'recipes' && <Recipes recipes={recipes} ingredients={ingredients} />}{activeView === 'planner' && <Planner meals={meals} recipes={recipes} settings={data.settings} />}{activeView === 'nutrition' && <NutritionView meals={meals} recipes={recipes} ingredients={ingredients} settings={data.settings} />}{activeView === 'shopping' && <Groceries meals={meals} ingredients={ingredients} pantry={pantry} lists={lists} listItems={listItems} stores={stores} prices={prices} />}{activeView === 'pantry' && <Pantry pantry={pantry} />}</AppShell>;
 }
