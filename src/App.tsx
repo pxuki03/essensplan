@@ -20,6 +20,27 @@ export default function App() {
   const stores = data.stores ?? [];
   const prices = data.prices ?? [];
 
+  if (data.error) {
+    return (
+      <AppShell activeView={activeView} onViewChange={setActiveView}>
+        <section className="view-stack" aria-labelledby="error-title">
+          <div className="view-header">
+            <p>Lokale Datenbank</p>
+            <h1 id="error-title">Essensplan konnte nicht geladen werden</h1>
+          </div>
+          <article className="panel">
+            <p>
+              Die lokale Browser-Datenbank hat einen Fehler gemeldet. Meist hilft es, die
+              Website-Daten fuer <strong>127.0.0.1</strong> einmal zu loeschen und die Seite neu
+              zu laden.
+            </p>
+            <p className="muted">{data.error}</p>
+          </article>
+        </section>
+      </AppShell>
+    );
+  }
+
   return (
     <AppShell activeView={activeView} onViewChange={setActiveView}>
       {activeView === 'dashboard' && <Dashboard recipes={recipes} ingredients={ingredients} meals={meals} pantry={pantry} listItems={listItems} settings={data.settings} />}
