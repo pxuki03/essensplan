@@ -1,6 +1,11 @@
 export type Unit = 'g' | 'ml' | 'piece' | 'serving';
-export type MealSlot = 'breakfast' | 'lunch' | 'dinner' | 'snack';
+export type MealSlot = string;
 export type NutritionSource = 'manual' | 'open-food-facts' | 'calculated';
+
+export interface MealSlotConfig {
+  id: MealSlot;
+  label: string;
+}
 
 export interface NutritionFacts {
   calories: number;
@@ -108,5 +113,8 @@ export interface UserSettings {
   id: 'default';
   dailyCalorieGoal: number;
   dailyProteinGoal: number;
+  dailyCarbohydrateGoal?: number;
+  dailyFatGoal?: number;
+  mealSlots?: MealSlotConfig[];
   preferredUnit: Unit;
 }
