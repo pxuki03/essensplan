@@ -1,6 +1,8 @@
-import { Plus, Trash2 } from 'lucide-react';
+import { useState } from 'react';
+import { Download, Plus, Trash2 } from 'lucide-react';
 import { db } from '../db/db';
 import { recipeNutritionPerServing, roundNutrition } from '../services/nutrition';
+import { importRecipeFromUrl } from '../services/recipeImport';
 import type { Recipe, RecipeIngredient, Unit } from '../types';
 
 interface RecipesProps {
@@ -11,6 +13,10 @@ interface RecipesProps {
 const units: Unit[] = ['g', 'ml', 'piece', 'serving'];
 
 export function Recipes({ recipes, ingredients }: RecipesProps) {
+  const [importUrl, setImportUrl] = useState('');
+  const [importStatus, setImportStatus] = useState('');
+  const [isImporting, setIsImporting] = useState(false);
+
   async function addRecipe() {
     const now = new Date().toISOString();
     const recipeId = Number(
@@ -39,6 +45,46 @@ export function Recipes({ recipes, ingredients }: RecipesProps) {
         source: 'manual'
       }
     });
+  }
+
+  async function importRecipe() {
+    setIsImporting(true);
+    setImportStatus('Rezept wird geladen...');
+
+    try {
+      const imported = await importRecipeFromUrl(importUrl);
+      const now = new Date().toISOString();
+      const recipeId = Number(
+        await db.recipes.add({
+          title: imported.title,
+          servings: imported.servings,
+          mealTypes: ['dinner'],
+          notes: imported.notes,
+          tags: ['importiert'],
+          createdAt: now,
+          updatedAt: now
+        })
+      );
+
+      if (imported.ingredients.length > 0) {
+        await db.recipeIngredients.bulkAdd(
+          imported.ingredients.map((ingredient) => ({
+            ...ingredient,
+            recipeId
+          }))
+        );
+      }
+
+      setImportUrl('');
+      setImportStatus('Rezept wurde importiert und kann jetzt angepasst werden.');
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Der Import ist fehlgeschlagen.';
+      setImportStatus(
+        `${message} Manche Webseiten blockieren den direkten Import. Probiere dann eine andere Rezeptseite.`
+      );
+    } finally {
+      setIsImporting(false);
+    }
   }
 
   async function updateRecipe(id: number | undefined, updates: Partial<Recipe>) {
@@ -88,6 +134,41 @@ export function Recipes({ recipes, ingredients }: RecipesProps) {
           <Plus size={16} aria-hidden="true" /> Rezept
         </button>
       </div>
+
+      <section className="panel import-panel" aria-labelledby="recipe-import-title">
+        <div>
+          <h2 id="recipe-import-title">Internet-Rezept importieren</h2>
+          <p className="muted">
+            Fuege einen Rezept-Link ein. Danach erscheint das Rezept unten und du kannst Titel,
+            Portionen, Notizen und Zutaten frei bearbeiten.
+          </p>
+        </div>
+        <div className="import-form">
+          <label>
+            <span>Rezept-Link</span>
+            <input
+              inputMode="url"
+              placeholder="https://..."
+              value={importUrl}
+              onChange={(event) => setImportUrl(event.target.value)}
+            />
+          </label>
+          <button
+            className="primary-button"
+            type="button"
+            disabled={isImporting}
+            onClick={() => void importRecipe()}
+          >
+            <Download size={16} aria-hidden="true" />
+            {isImporting ? 'Importiert...' : 'Importieren'}
+          </button>
+        </div>
+        {importStatus ? (
+          <p className="status-message" role="status">
+            {importStatus}
+          </p>
+        ) : null}
+      </section>
 
       <div className="card-grid">
         {recipes.map((recipe) => {
