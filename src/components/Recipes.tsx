@@ -187,7 +187,7 @@ export function Recipes({ recipes, ingredients }: RecipesProps) {
         ) : null}
       </section>
 
-      <div className="card-grid">
+      <div className="recipes-list">
         {recipes.map((recipe) => {
           const recipeIngredients = ingredients.filter((item) => item.recipeId === recipe.id);
           const nutrition = recipeNutritionPerServing(recipe, recipeIngredients);
