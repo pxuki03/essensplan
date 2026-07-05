@@ -71,6 +71,11 @@ label > span {
   gap: 12px;
 }
 
+.recipes-list {
+  display: grid;
+  gap: 16px;
+}
+
 .ingredient-list {
   display: grid;
   gap: 10px;
@@ -78,11 +83,22 @@ label > span {
 
 .ingredient-row {
   display: grid;
-  grid-template-columns: minmax(150px, 1.4fr) 88px 88px minmax(120px, 1fr) repeat(4, 92px) auto;
+  grid-template-columns:
+    minmax(180px, 1.4fr)
+    minmax(84px, 0.55fr)
+    minmax(92px, 0.55fr)
+    minmax(140px, 1fr)
+    repeat(4, minmax(88px, 0.6fr))
+    auto;
   gap: 10px;
   align-items: end;
   border-top: 1px solid var(--line);
   padding-top: 12px;
+}
+
+.ingredient-row .icon-button {
+  min-height: 43px;
+  white-space: nowrap;
 }
 
 .planner-cell {
