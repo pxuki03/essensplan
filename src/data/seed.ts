@@ -1,4 +1,5 @@
 import { db } from '../db/db';
+import { defaultMealSlots } from '../services/mealSlots';
 import type { MealPlanEntry, PantryItem, PriceObservation, Recipe, RecipeIngredient, ShoppingList, ShoppingListItem, Store, UserSettings } from '../types';
 
 const now = () => new Date().toISOString();
@@ -13,7 +14,15 @@ export async function seedDemoData() {
   const recipeCount = await db.recipes.count();
   if (recipeCount > 0) return;
 
-  const settings: UserSettings = { id: 'default', dailyCalorieGoal: 2100, dailyProteinGoal: 95, preferredUnit: 'g' };
+  const settings: UserSettings = {
+    id: 'default',
+    dailyCalorieGoal: 2100,
+    dailyProteinGoal: 95,
+    dailyCarbohydrateGoal: 260,
+    dailyFatGoal: 80,
+    mealSlots: defaultMealSlots,
+    preferredUnit: 'g'
+  };
   await db.userSettings.put(settings);
 
   const stores: Store[] = [{ name: 'REWE' }, { name: 'Wochenmarkt' }, { name: 'dm' }];
