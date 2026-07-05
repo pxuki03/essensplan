@@ -78,7 +78,7 @@ label > span {
 
 .ingredient-row {
   display: grid;
-  grid-template-columns: minmax(150px, 1.4fr) 96px 92px minmax(120px, 1fr) auto;
+  grid-template-columns: minmax(150px, 1.4fr) 88px 88px minmax(120px, 1fr) repeat(4, 92px) auto;
   gap: 10px;
   align-items: end;
   border-top: 1px solid var(--line);
@@ -96,9 +96,25 @@ label > span {
   justify-self: start;
 }
 
+.planner-slot-edit {
+  display: grid;
+  gap: 8px;
+}
+
+.planner-slot-edit input {
+  background: #fffdfa;
+}
+
+.settings-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(120px, 1fr));
+  gap: 12px;
+}
+
 @media (max-width: 860px) {
   .recipe-form-grid,
-  .ingredient-row {
+  .ingredient-row,
+  .settings-grid {
     grid-template-columns: 1fr;
   }
 }
