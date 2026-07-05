@@ -118,6 +118,23 @@ export function Recipes({ recipes, ingredients }: RecipesProps) {
     await db.recipeIngredients.update(id, updates);
   }
 
+  async function updateIngredientNutrition(
+    ingredient: RecipeIngredient,
+    field: 'calories' | 'protein' | 'carbohydrates' | 'fat',
+    value: number
+  ) {
+    await updateIngredient(ingredient.id, {
+      nutritionPer100: {
+        calories: ingredient.nutritionPer100?.calories ?? 0,
+        protein: ingredient.nutritionPer100?.protein ?? 0,
+        carbohydrates: ingredient.nutritionPer100?.carbohydrates ?? 0,
+        fat: ingredient.nutritionPer100?.fat ?? 0,
+        source: 'manual',
+        [field]: Math.max(value, 0)
+      }
+    });
+  }
+
   async function deleteIngredient(id: number | undefined) {
     if (!id) return;
     await db.recipeIngredients.delete(id);
@@ -274,6 +291,62 @@ export function Recipes({ recipes, ingredients }: RecipesProps) {
                         value={ingredient.category}
                         onChange={(event) =>
                           void updateIngredient(ingredient.id, { category: event.target.value })
+                        }
+                      />
+                    </label>
+                    <label>
+                      <span>kcal/100g</span>
+                      <input
+                        min={0}
+                        type="number"
+                        value={ingredient.nutritionPer100?.calories ?? 0}
+                        onChange={(event) =>
+                          void updateIngredientNutrition(
+                            ingredient,
+                            'calories',
+                            Number(event.target.value)
+                          )
+                        }
+                      />
+                    </label>
+                    <label>
+                      <span>Protein</span>
+                      <input
+                        min={0}
+                        type="number"
+                        value={ingredient.nutritionPer100?.protein ?? 0}
+                        onChange={(event) =>
+                          void updateIngredientNutrition(
+                            ingredient,
+                            'protein',
+                            Number(event.target.value)
+                          )
+                        }
+                      />
+                    </label>
+                    <label>
+                      <span>Kohlenh.</span>
+                      <input
+                        min={0}
+                        type="number"
+                        value={ingredient.nutritionPer100?.carbohydrates ?? 0}
+                        onChange={(event) =>
+                          void updateIngredientNutrition(
+                            ingredient,
+                            'carbohydrates',
+                            Number(event.target.value)
+                          )
+                        }
+                      />
+                    </label>
+                    <label>
+                      <span>Fett</span>
+                      <input
+                        min={0}
+                        type="number"
+                        value={ingredient.nutritionPer100?.fat ?? 0}
+                        onChange={(event) =>
+                          void updateIngredientNutrition(ingredient, 'fat', Number(event.target.value))
                         }
                       />
                     </label>
