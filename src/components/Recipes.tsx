@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import { Download, Plus, Trash2 } from 'lucide-react';
+import { Download, Plus, Sparkles, Trash2 } from 'lucide-react';
 import { db } from '../db/db';
 import { caloriesForNutrition, caloriesFromMacros, recipeNutritionPerServing, roundNutrition } from '../services/nutrition';
+import { searchOpenFoodFacts } from '../services/openFoodFacts';
 import { importRecipeFromUrl } from '../services/recipeImport';
 import type { Recipe, RecipeIngredient, Unit } from '../types';
 
@@ -15,6 +16,7 @@ const units: Unit[] = ['g', 'ml', 'piece', 'serving'];
 export function Recipes({ recipes, ingredients }: RecipesProps) {
   const [importUrl, setImportUrl] = useState('');
   const [importStatus, setImportStatus] = useState('');
+  const [macroStatus, setMacroStatus] = useState('');
   const [isImporting, setIsImporting] = useState(false);
 
   async function addRecipe() {
@@ -67,12 +69,20 @@ export function Recipes({ recipes, ingredients }: RecipesProps) {
       );
 
       if (imported.ingredients.length > 0) {
-        await db.recipeIngredients.bulkAdd(
+        const ingredientIds = await db.recipeIngredients.bulkAdd(
           imported.ingredients.map((ingredient) => ({
             ...ingredient,
             recipeId
-          }))
+          })),
+          { allKeys: true }
         );
+
+        const savedIngredients = imported.ingredients.map((ingredient, index) => ({
+          ...ingredient,
+          id: Number(ingredientIds[index]),
+          recipeId
+        }));
+        await fillIngredientMacros(savedIngredients);
       }
 
       setImportUrl('');
@@ -145,6 +155,42 @@ export function Recipes({ recipes, ingredients }: RecipesProps) {
     await db.recipeIngredients.delete(id);
   }
 
+  async function fillIngredientMacros(recipeIngredients: RecipeIngredient[]) {
+    setMacroStatus('Makros werden gesucht...');
+    let updated = 0;
+
+    for (const ingredient of recipeIngredients) {
+      try {
+        const products = await searchOpenFoodFacts(ingredient.name);
+        const product = products.find(
+          (item) =>
+            item.nutritionPer100.protein > 0 ||
+            item.nutritionPer100.carbohydrates > 0 ||
+            item.nutritionPer100.fat > 0
+        );
+
+        if (product && ingredient.id) {
+          await updateIngredient(ingredient.id, {
+            foodProductId: product.id,
+            nutritionPer100: {
+              ...product.nutritionPer100,
+              calories: caloriesFromMacros(product.nutritionPer100)
+            }
+          });
+          updated += 1;
+        }
+      } catch {
+        continue;
+      }
+    }
+
+    setMacroStatus(
+      updated > 0
+        ? `Makros fuer ${updated} Zutaten automatisch uebernommen.`
+        : 'Keine passenden Makros gefunden. Du kannst die Werte weiter manuell eintragen.'
+    );
+  }
+
   return (
     <section className="view-stack" aria-labelledby="recipes-title">
       <div className="view-header row-header">
@@ -193,6 +239,11 @@ export function Recipes({ recipes, ingredients }: RecipesProps) {
       </section>
 
       <div className="recipes-list">
+        {macroStatus ? (
+          <p className="status-message" role="status">
+            {macroStatus}
+          </p>
+        ) : null}
         {recipes.map((recipe) => {
           const recipeIngredients = ingredients.filter((item) => item.recipeId === recipe.id);
           const nutrition = recipeNutritionPerServing(recipe, recipeIngredients);
@@ -239,13 +290,22 @@ export function Recipes({ recipes, ingredients }: RecipesProps) {
 
               <div className="row-header">
                 <h2>Zutaten</h2>
-                <button
-                  className="secondary-button"
-                  type="button"
-                  onClick={() => void addIngredient(recipe.id)}
-                >
-                  <Plus size={15} aria-hidden="true" /> Zutat
-                </button>
+                <div className="button-row">
+                  <button
+                    className="secondary-button"
+                    type="button"
+                    onClick={() => void fillIngredientMacros(recipeIngredients)}
+                  >
+                    <Sparkles size={15} aria-hidden="true" /> Makros automatisch
+                  </button>
+                  <button
+                    className="secondary-button"
+                    type="button"
+                    onClick={() => void addIngredient(recipe.id)}
+                  >
+                    <Plus size={15} aria-hidden="true" /> Zutat
+                  </button>
+                </div>
               </div>
 
               <div className="ingredient-list">
