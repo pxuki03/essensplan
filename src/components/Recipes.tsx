@@ -1,7 +1,12 @@
 import { useState } from 'react';
 import { Download, Plus, Sparkles, Trash2 } from 'lucide-react';
 import { db } from '../db/db';
-import { caloriesForNutrition, caloriesFromMacros, recipeNutritionPerServing, roundNutrition } from '../services/nutrition';
+import {
+  caloriesFromMacros,
+  nutritionForIngredient,
+  recipeNutritionPerServing,
+  roundNutrition
+} from '../services/nutrition';
 import { searchOpenFoodFacts } from '../services/openFoodFacts';
 import { importRecipeFromUrl } from '../services/recipeImport';
 import type { Recipe, RecipeIngredient, Unit } from '../types';
@@ -283,8 +288,8 @@ export function Recipes({ recipes, ingredients }: RecipesProps) {
               </label>
 
               <div className="nutrition-strip">
-                <span>{Math.round(nutrition.calories)} kcal</span>
-                <span>{roundNutrition(nutrition.protein)} g Protein</span>
+                <span>{Math.round(nutrition.calories)} kcal / Portion</span>
+                <span>{roundNutrition(nutrition.protein)} g Protein / Portion</span>
                 <span>{recipeIngredients.length} Zutaten</span>
               </div>
 
@@ -360,20 +365,18 @@ export function Recipes({ recipes, ingredients }: RecipesProps) {
                       />
                     </label>
                     <label>
-                      <span>kcal auto</span>
+                      <span>kcal/Portion</span>
                       <input
                         min={0}
                         type="number"
                         readOnly
-                        value={
-                          ingredient.nutritionPer100
-                            ? Math.round(caloriesForNutrition(ingredient.nutritionPer100))
-                            : 0
-                        }
+                        value={Math.round(
+                          nutritionForIngredient(ingredient).calories / Math.max(recipe.servings, 1)
+                        )}
                       />
                     </label>
                     <label>
-                      <span>Protein</span>
+                      <span>Protein/100g</span>
                       <input
                         min={0}
                         type="number"
@@ -388,7 +391,7 @@ export function Recipes({ recipes, ingredients }: RecipesProps) {
                       />
                     </label>
                     <label>
-                      <span>Kohlenh.</span>
+                      <span>Kohlenh./100g</span>
                       <input
                         min={0}
                         type="number"
@@ -403,7 +406,7 @@ export function Recipes({ recipes, ingredients }: RecipesProps) {
                       />
                     </label>
                     <label>
-                      <span>Fett</span>
+                      <span>Fett/100g</span>
                       <input
                         min={0}
                         type="number"
