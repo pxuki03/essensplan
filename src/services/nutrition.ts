@@ -2,6 +2,15 @@ import type { MealPlanEntry, NutritionFacts, Recipe, RecipeIngredient } from '..
 
 export const emptyNutrition = (source: NutritionFacts['source'] = 'calculated'): NutritionFacts => ({ calories: 0, protein: 0, carbohydrates: 0, fat: 0, fiber: 0, sugar: 0, source });
 
+export function caloriesFromMacros(nutrition: Pick<NutritionFacts, 'protein' | 'carbohydrates' | 'fat'>) {
+  return nutrition.protein * 4 + nutrition.carbohydrates * 4 + nutrition.fat * 9;
+}
+
+export function caloriesForNutrition(nutrition: NutritionFacts) {
+  const hasMacros = nutrition.protein > 0 || nutrition.carbohydrates > 0 || nutrition.fat > 0;
+  return hasMacros ? caloriesFromMacros(nutrition) : nutrition.calories;
+}
+
 export function addNutrition(a: NutritionFacts, b: NutritionFacts): NutritionFacts {
   return { calories: a.calories + b.calories, protein: a.protein + b.protein, carbohydrates: a.carbohydrates + b.carbohydrates, fat: a.fat + b.fat, fiber: (a.fiber ?? 0) + (b.fiber ?? 0), sugar: (a.sugar ?? 0) + (b.sugar ?? 0), source: 'calculated' };
 }
@@ -9,7 +18,7 @@ export function addNutrition(a: NutritionFacts, b: NutritionFacts): NutritionFac
 export function nutritionForIngredient(ingredient: RecipeIngredient): NutritionFacts {
   if (!ingredient.nutritionPer100) return emptyNutrition();
   const factor = ingredient.unit === 'g' || ingredient.unit === 'ml' ? ingredient.quantity / 100 : ingredient.quantity;
-  return { calories: ingredient.nutritionPer100.calories * factor, protein: ingredient.nutritionPer100.protein * factor, carbohydrates: ingredient.nutritionPer100.carbohydrates * factor, fat: ingredient.nutritionPer100.fat * factor, fiber: (ingredient.nutritionPer100.fiber ?? 0) * factor, sugar: (ingredient.nutritionPer100.sugar ?? 0) * factor, source: 'calculated' };
+  return { calories: caloriesForNutrition(ingredient.nutritionPer100) * factor, protein: ingredient.nutritionPer100.protein * factor, carbohydrates: ingredient.nutritionPer100.carbohydrates * factor, fat: ingredient.nutritionPer100.fat * factor, fiber: (ingredient.nutritionPer100.fiber ?? 0) * factor, sugar: (ingredient.nutritionPer100.sugar ?? 0) * factor, source: 'calculated' };
 }
 
 export function recipeNutritionTotal(ingredients: RecipeIngredient[]): NutritionFacts {
