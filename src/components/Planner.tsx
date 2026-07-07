@@ -66,6 +66,13 @@ async function removeMeal(entry?: MealPlanEntry) {
   }
 }
 
+async function updateMealServings(entry: MealPlanEntry | undefined, servings: number) {
+  if (!entry?.id) return;
+  await db.mealPlanEntries.update(entry.id, {
+    servings: Math.max(servings, 0)
+  });
+}
+
 export function Planner({ meals, recipes, settings }: PlannerProps) {
   const slots = mealSlotsFromSettings(settings);
 
@@ -152,10 +159,24 @@ export function Planner({ meals, recipes, settings }: PlannerProps) {
             </select>
           </label>
           {entry ? (
-            <button className="icon-button" type="button" onClick={() => void removeMeal(entry)}>
-              <Trash2 size={15} aria-hidden="true" />
-              <span>Entfernen</span>
-            </button>
+            <>
+              <label>
+                <span>Portionen</span>
+                <input
+                  min={0}
+                  step={0.5}
+                  type="number"
+                  value={entry.servings}
+                  onChange={(event) =>
+                    void updateMealServings(entry, Number(event.target.value))
+                  }
+                />
+              </label>
+              <button className="icon-button" type="button" onClick={() => void removeMeal(entry)}>
+                <Trash2 size={15} aria-hidden="true" />
+                <span>Entfernen</span>
+              </button>
+            </>
           ) : (
             <span className="muted">Noch frei</span>
           )}
