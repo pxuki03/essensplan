@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Download, Plus, Trash2 } from 'lucide-react';
 import { db } from '../db/db';
-import { recipeNutritionPerServing, roundNutrition } from '../services/nutrition';
+import { caloriesForNutrition, caloriesFromMacros, recipeNutritionPerServing, roundNutrition } from '../services/nutrition';
 import { importRecipeFromUrl } from '../services/recipeImport';
 import type { Recipe, RecipeIngredient, Unit } from '../types';
 
@@ -120,17 +120,22 @@ export function Recipes({ recipes, ingredients }: RecipesProps) {
 
   async function updateIngredientNutrition(
     ingredient: RecipeIngredient,
-    field: 'calories' | 'protein' | 'carbohydrates' | 'fat',
+    field: 'protein' | 'carbohydrates' | 'fat',
     value: number
   ) {
+    const nextNutrition = {
+      calories: ingredient.nutritionPer100?.calories ?? 0,
+      protein: ingredient.nutritionPer100?.protein ?? 0,
+      carbohydrates: ingredient.nutritionPer100?.carbohydrates ?? 0,
+      fat: ingredient.nutritionPer100?.fat ?? 0,
+      source: 'manual' as const,
+      [field]: Math.max(value, 0)
+    };
+
     await updateIngredient(ingredient.id, {
       nutritionPer100: {
-        calories: ingredient.nutritionPer100?.calories ?? 0,
-        protein: ingredient.nutritionPer100?.protein ?? 0,
-        carbohydrates: ingredient.nutritionPer100?.carbohydrates ?? 0,
-        fat: ingredient.nutritionPer100?.fat ?? 0,
-        source: 'manual',
-        [field]: Math.max(value, 0)
+        ...nextNutrition,
+        calories: caloriesFromMacros(nextNutrition)
       }
     });
   }
@@ -295,17 +300,15 @@ export function Recipes({ recipes, ingredients }: RecipesProps) {
                       />
                     </label>
                     <label>
-                      <span>kcal/100g</span>
+                      <span>kcal auto</span>
                       <input
                         min={0}
                         type="number"
-                        value={ingredient.nutritionPer100?.calories ?? 0}
-                        onChange={(event) =>
-                          void updateIngredientNutrition(
-                            ingredient,
-                            'calories',
-                            Number(event.target.value)
-                          )
+                        readOnly
+                        value={
+                          ingredient.nutritionPer100
+                            ? Math.round(caloriesForNutrition(ingredient.nutritionPer100))
+                            : 0
                         }
                       />
                     </label>
