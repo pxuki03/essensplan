@@ -53,6 +53,13 @@ label > span {
   color: #9f3527;
 }
 
+.button-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
 .sr-only {
   position: absolute;
   width: 1px;
